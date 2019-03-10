@@ -31,7 +31,8 @@ int Kruskal()
 		int yy=find(e[i].y);
 		if(xx!=yy)//掌门不同？踢馆！~
 			f[xx]=yy;//合并boss
-		if(find(1)==find(n))//掌门一样，就连通了，当前即为最小
+        //如果是最小生成树，则需全部算完，这道题只需要起点到终点最短
+		if(find(1)==find(n))//掌门一样，就连通了，当前即为最小，越来越大
 		{
 			res=e[i].d;
 			break;
