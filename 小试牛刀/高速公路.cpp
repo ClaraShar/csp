@@ -38,6 +38,5 @@ int main()
             	cnt++; 
     }
     cout<<cnt<<endl;
-    cin>>n;
 	return 0;
 }
