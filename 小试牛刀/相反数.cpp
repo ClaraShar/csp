@@ -35,6 +35,5 @@ int main()
 			pa++;
 	}
 	cout<<cnt;
-	cin>>n;
 	return 0;
 }
