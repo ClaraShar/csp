@@ -10,6 +10,5 @@ int main()
 	for(int i=0;i<s.length();++i)
 		res+=s[i]-'0';
 	cout<<res;
-	cin>>s;
 	return 0;
 }
