@@ -1,63 +1,91 @@
-#include<cstdio>
-#include<cstring>
-#include<algorithm>
-#include<iostream>
-
+#include <iostream>
+#include <queue>
+#include <vector>
+#define NMAX 10005
 using namespace std;
 
-int n,m;//n个点，m条边 
-int graph[10005][10005];
-int dis[10005],vis[10005],cost[10005];
+//用邻接表存储
+//v表示节点，w表示出发点到v点的距离
+struct Node {
+    int v;
+    int w;
+    Node(int vv=0, int ww=0){
+        v=vv,w=ww;
+    }
+    // 优先队列将按距离从小到大排列
+    friend bool operator<(Node n1, Node n2) {
+        return n1.w>n2.w;
+    }
+};
 
-const int INF=0x3f3f3f3f;
- 
-void Dijkstra(int v0)
-{
-	for(int i=1;i<=n;i++)
-       dis[i]=cost[i]=INF;
-	dis[v0]=cost[v0]=0;
-	vis[0]=1;
-	while(1)
-	{
-        int minn=INF,v=-1;
-        for(int j=1;j<=n;j++)
-        {
-			if(!vis[j]&&dis[j]<minn)
-			{
-	            v=j;
-	            minn=dis[j];
-	        }
-        }//循环找到当前初始距离最小的点minn
-        if(v==-1)
-        	break;//和n-1次更新差不多
-        vis[v]=1;
-	    for(int j=1;j<=n;j++)
-	    {
-	        if(!vis[j] && graph[v][j]+dis[v]<dis[j])
-	        {
-                dis[j]=graph[v][j]+dis[v];
-                cost[j]=graph[v][j];
+//v表示边的另一端节点，cost表示该边的权重
+struct Edge {
+    int v;
+    int w;
+    Edge(int vv=0, int ww=0) {
+        v=vv,w=ww;
+    }
+};
+
+vector<Edge>G[NMAX];//无向图
+bool marked[NMAX];      // D算法中每个顶点仅处理一遍
+int dist[NMAX];        // 出发点到某点距离
+int cost[NMAX];        // 接通该点需要增加的边的权重
+int n,m;
+
+void Dijkstra(int s){
+    for (int i=0;i<=n;i++){
+        cost[i]=dist[i]=INT_MAX;
+        marked[i]=false;
+    }
+    dist[s]=0;
+    cost[s]=0;
+    priority_queue<Node>pq;     // 保存<v,dist[v]>且按dist[v]升序排列
+    pq.push(Node(s,0));
+    marked[0]=true;
+
+    Node tmp;
+    while(!pq.empty()) {
+        tmp = pq.top();
+        pq.pop();
+        int v = tmp.v;
+        if (!marked[v]) {
+            marked[v]=true;
+            int len = G[v].size();
+            for (int i = 0; i < len; i++) {
+                int vv = G[v][i].v;
+                if(marked[vv])
+                    continue;
+                int ww=G[v][i].w;
+                int newdist=dist[v]+ww;
+                if (dist[vv]>newdist) {
+                    dist[vv]=newdist;
+                    cost[vv]=ww;   // 增加的内容
+                    pq.push(Node(vv,dist[vv]));
+                }
+                // 增加的内容
+                // 加入点vv时若出现多种距离相同的方案，选取新边最小那个
+                if (dist[vv]==newdist)
+                    cost[vv]=min(cost[vv],ww);
             }
-            if(!vis[j] && graph[v][j]+dis[v]==dis[j])
-            	cost[j]=min(graph[v][j],cost[j]);
         }
     }
 }
- 
+
 int main()
 {
 	cin>>n>>m;
-	int a,b,c;
-    for(int i=1;i<=m;i++)
-	{
-	  	cin>>a>>b>>c;
-	  	graph[a][b]=graph[b][a]=c;
-	}
-	Dijkstra(1);
-	int res=0;
-	for(int i=2;i<=n;++i)
-		res+=cost[i];
-	cout<<res;
-	cin>>n;
+	int u,v,w;
+    for(int i=0;i<m;i++){
+        cin>>u>>v>>w;
+        G[u].push_back(Edge(v,w));
+        G[v].push_back(Edge(u,w));
+    }//无向图
+    Dijkstra(1);
+    // 统计边权重
+    int res=0;
+    for (int i=2;i<=n;i++)
+        res+=cost[i];
+    cout<<res<<endl;
 	return 0;
 }
